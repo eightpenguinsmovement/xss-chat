@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Group Chat Node.js</title>
+    <style>
+        *{
+           margin: 0; 
+           padding: 0; 
+           box-sizing: border-box; 
+           }
+        body {
+           font: 18px Lucida Console, Arial;
+            background-color: black;
+            width: 100vw;
+            }
+        form {
+          background: black;
+          padding: 3px;
+          position: fixed;
+           bottom: 0; 
+           width: 100vh; 
+           
+           }
+        form input { 
+          border-style: solid; 
+          border-width: 1px; 
+          padding: 10px; 
+          width: 85vw;
+           margin-right: .5%;
+            }
+        form button { 
+          width: 9%;
+           background: #00ff00;;
+           border: none;
+            padding: 10px;
+             margin-left: 2%; 
+             }
+        #messages { 
+          list-style-type: none; 
+          margin: 0; 
+          padding: 0; 
+          }
+        #messages li { 
+          padding: 5px 10px; 
+          color: #00ff00;
+          }
+        
+    </style>
+    <script src="../../socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="/" method="POST" id="chatForm">
+      <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()" placeholder="Napisz..." /><button>Wyślij</button>
+    </form>
+    <script>
+            var socket = io.connect('http://localhost:8080');
+          
+            $('form').submit(function(e){
+                e.preventDefault(); 
+                socket.emit('chat_message', $('#txt').val());
+                $('#txt').val('');
+                return false;
+            });
+            // append the chat text message
+            socket.on('chat_message', function(msg){
+                $('#messages').prepend($('<li>').html(msg));
+            });
+            // append text if someone is online
+            socket.on('is_online', function(username) {
+                $('#messages').prepend($('<li>').html(username));
+            });
+            // ask username
+            var username = prompt('Please tell me your name');
+            if(username == "")
+            {
+              username = "Anon";
+            }
+            socket.emit('username', username);
+    </script>
+  </body>
+</html>
